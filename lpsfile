@@ -1,0 +1,909 @@
+1.DFA
+
+import java.util.Scanner;
+public class GFG {
+public static void main(String args[])
+{
+Scanner sc=new Scanner(System.in);
+System.out.println("Enter string: ");
+String str=sc.next();
+int q=0;
+for(int i=0;i<str.length();i++)
+{
+if(str.charAt(i)!='a' && str.charAt(i)!='b' && str.charAt(i)!='c') {
+System.out.println("Given string is invalid.");
+return;
+}
+switch(q) {
+case 0:
+q=(str.charAt(i)=='a') ? 1:0;
+break;
+case 1:
+q=(str.charAt(i)=='b') ? 2:(str.charAt(i)=='a') ? 1:0;
+break;
+case 2:
+q=(str.charAt(i)=='c') ? 3:(str.charAt(i)=='a') ? 1:0;
+break;
+case 3:
+q=(str.charAt(i)=='a') ? 1:0;
+break;
+}
+}
+if(q==3)
+System.out.println("ACCEPTED");
+else
+System.out.println("NOT ACCEPTED");
+}
+}
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2.
+
+
+import java.util.Scanner;
+public class L1{
+    static int asciiValueOfToken;
+    static char tc;
+    // Returns 'true' if the character is a DELIMITER.
+    static boolean isDelimiter(char ch) {
+        return ch == ' ' || ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
+               ch == ',' || ch == ';' || ch == '>' || ch == '<' || ch == '=' ||
+               ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}';
+    }
+
+    // Returns 'true' if the character is an OPERATOR.
+    static boolean isOperator(char ch) {
+        return ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '>' || ch == '<' || ch == '=';
+    }
+
+    // Returns 'true' if the string is a KEYWORD.
+    static boolean isKeyword(String str) {
+        switch (str) {
+            case "if":
+            case "else":
+            case "while":
+            case "do":
+            case "break":
+            case "continue":
+            case "int":
+            case "double":
+            case "float":
+            case "return":
+            case "char":
+            case "case":
+            case "sizeof":
+            case "long":
+            case "short":
+            case "typedef":
+            case "switch":
+            case "unsigned":
+            case "void":
+            case "static":
+            case "struct":
+            case "goto":
+            case "auto":
+            case "for":
+            case "signed":
+            case "register":
+            case "union":
+            case "volatile":
+            case "extern":
+            case "default":
+            case "const":
+            case "enum":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    // Returns 'true' if the string is an INTEGER.
+    static boolean isInteger(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    // Returns 'true' if the string is a REAL NUMBER.
+    static boolean isRealNumber(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    // Parsing the input STRING.
+    static void parse(String str) {
+        String[] tokens = str.split("\\s+"); // split by whitespace
+        for (String token : tokens) {
+            if (isDelimiter(token.charAt(0))) {
+                if (isOperator(token.charAt(0))) {
+                    System.out.println("'" + token + "' IS AN OPERATOR");
+                }
+             else  {
+                System.out.println("'" + token + "' IS A DELIMITER");
+            }
+            } else {
+                if(token.length() == 1)
+                {
+                    tc = token.charAt(0);
+                    asciiValueOfToken = (int)tc;
+                   
+                }
+                if (isKeyword(token)) {
+                    System.out.println("'" + token + "' IS A KEYWORD");
+                } else if (isInteger(token)) {
+                    System.out.println("'" + token + "' IS AN INTEGER");
+                } else if (isRealNumber(token)) {
+                    System.out.println("'" + token + "' IS A REAL NUMBER");
+                } else if((asciiValueOfToken >= 65 && asciiValueOfToken <= 90) || (asciiValueOfToken >= 97 && asciiValueOfToken <= 112)) {
+                    System.out.println("'" + token + "' IS A VALID IDENTIFIER");
+                } else {
+                    System.out.println("'" + token + "' IS A INVALID IDENTIFIER");
+                }
+            }
+        }
+    }
+
+   
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter an expression : ");
+        String str = sc.nextLine();
+        parse(str); // calling the parse function
+    }
+}
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+3.Left Recursion
+
+
+import java.util.*;
+public class LRR {
+
+	public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Prompt for input grammar
+        System.out.println("Enter the grammar rules (one rule per line, use '|' to separate alternatives):");
+        System.out.println("Example: A -> Aa|b");
+        List<String> rules = new ArrayList<>();
+        while (true) {
+            String input = scanner.nextLine();
+            if (input.isEmpty()) {
+                break;
+            }
+            rules.add(input);
+        }
+
+        // Eliminate left recursion
+        List<String> eliminatedRules = eliminateLeftRecursion(rules); 
+
+        // Print the new grammar without left recursion
+        System.out.println("\nGrammar after eliminating left recursion:");
+        for (String rule : eliminatedRules) {
+            System.out.println(rule);
+        }
+    }
+
+    public static List<String> eliminateLeftRecursion(List<String> rules) {
+        List<String> newRules = new ArrayList<>();
+
+        for (String rule : rules) {
+            String[] parts = rule.split("->");
+            String nonTerminal = parts[0].trim();
+            String[] alternatives = parts[1].trim().split("\\|");
+
+            List<String> alpha = new ArrayList<>();
+            List<String> beta = new ArrayList<>();
+
+            // Divide the alternatives into alpha and beta
+            for (String alternative : alternatives) {
+                if (alternative.startsWith(nonTerminal)) {
+                    beta.add(alternative.substring(1).trim() + " " + nonTerminal + "'");
+                } else {
+                    alpha.add(alternative.trim() + " " + nonTerminal + "'");
+                }
+            }
+
+            // Add new rules to eliminate left recursion
+            if (!beta.isEmpty()) {
+                String newRule1 = nonTerminal + " -> " + String.join(" | ", alpha);
+                String newRule2 = nonTerminal + " -> " + String.join(" | ",beta) + " | epsilon";
+                newRules.add(newRule1);
+                newRules.add(newRule2);
+            } else {
+                newRules.add(rule);
+            }
+        }
+
+        return newRules;
+    }
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+4.Left Factoring
+
+import java.util.*;
+
+public class LeftFactoring {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the number of productions:");
+        int n = sc.nextInt();
+        sc.nextLine(); // consume the newline character
+
+        String[] productions = new String[n];
+        System.out.println("Enter the productions:");
+        for (int i = 0; i < n; i++) {
+            productions[i] = sc.nextLine();
+        }
+
+        eliminateLeftFactoring(productions);
+    }
+
+    private static void eliminateLeftFactoring(String[] productions) {
+        for (String production : productions) {
+            String[] parts = production.split("->");
+            String lhs = parts[0].trim();
+            String[] rhs = parts[1].split("\\|");
+
+            // Find the common prefix
+            String prefix = findCommonPrefix(rhs);
+
+            if (!prefix.isEmpty()) {
+                System.out.println(lhs + " -> " + prefix + lhs + "'");
+                List<String> newRhs = new ArrayList<>();
+                for (String r : rhs) {
+                    if (r.startsWith(prefix)) {
+                        String suffix = r.substring(prefix.length()).trim();
+                        if (suffix.isEmpty()) {
+                            suffix = " "; // using epsilon for empty string
+                        }
+                        newRhs.add(suffix);
+                    } else {
+                        newRhs.add(r);
+                    }
+                }
+                System.out.println(lhs + "' -> " + String.join(" | ", newRhs));
+            } else {
+                System.out.println(production);
+            }
+        }
+    }
+
+    private static String findCommonPrefix(String[] rhs) {
+        String prefix = rhs[0];
+        for (int i = 1; i < rhs.length; i++) {
+            while (rhs[i].indexOf(prefix) != 0) {
+                prefix = prefix.substring(0, prefix.length() - 1);
+                if (prefix.isEmpty()) {
+                    return "";
+                }
+            }
+        }
+        return prefix;
+    }
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+5.First and Follow
+
+import java.util.*;
+import java.io.*;
+class fstnflw
+{
+static char ntermnl[],termnl[];
+static int ntlen,tlen;
+static String grmr[][],fst[],flw[];
+public static void main(String args[]) throws IOException
+{
+String nt,t;
+int i,j,n;
+BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+System.out.println("Enter the non-terminals");
+nt=br.readLine();
+ntlen=nt.length();
+ntermnl=new char[ntlen];
+ntermnl=nt.toCharArray();
+System.out.println("Enter the terminals");
+t=br.readLine();
+tlen=t.length();
+termnl=new char[tlen];
+termnl=t.toCharArray();
+System.out.println("Specify the grammar(Enter 9 for epsilon production)");
+grmr=new String[ntlen][];
+for(i=0;i<ntlen;i++)
+{
+System.out.println("Enter the number of productions for "+ntermnl[i]);
+n=Integer.parseInt(br.readLine());
+grmr[i]=new String[n];
+System.out.println("Enter the productions");
+for(j=0;j<n;j++)
+grmr[i][j]=br.readLine();
+}
+fst=new String[ntlen];
+for(i=0;i<ntlen;i++)
+fst[i]=first(i);
+System.out.println("First Set");
+for(i=0;i<ntlen;i++)
+System.out.println("{"+removeDuplicates(fst[i])+"}");
+flw=new String[ntlen];
+for(i=0;i<ntlen;i++)
+flw[i]=follow(i);
+System.out.println("Follow Set");
+for(i=0;i<ntlen;i++)
+System.out.println("{"+removeDuplicates(flw[i])+"}");
+}
+static String first(int i)
+{
+int j,k,l=0,found=0;
+String temp="",str="";
+for(j=0;j<grmr[i].length;j++) //number of productions
+{
+for(k=0;k<grmr[i][j].length();k++,found=0) //when nonterminal has epsilon production
+{
+for(l=0;l<ntlen;l++) //finding nonterminal
+{
+if(grmr[i][j].charAt(k)==ntermnl[l]) //for nonterminal in first set
+{
+str=first(l);
+if(!(str.length()==1 && str.charAt(0)=='9')) //when epsilon production is the only nonterminal production
+temp=temp+str;
+found=1;
+break;
+}
+}
+if(found==1)
+{
+if(str.contains("9")) //here epsilon will lead to next nonterminal’s first set
+continue;
+}
+else //if first set includes terminal
+temp=temp+grmr[i][j].charAt(k);
+break;
+}
+}
+return temp;
+}
+static String follow(int i)
+{
+char pro[],chr[];
+String temp="";
+int j,k,l,m,n,found=0;
+if(i==0)
+temp="$";
+for(j=0;j<ntlen;j++)
+{
+for(k=0;k<grmr[j].length;k++) //entering grammar matrix
+{
+pro=new char[grmr[j][k].length()];
+pro=grmr[j][k].toCharArray();
+for(l=0;l<pro.length;l++) //entering each production
+{
+if(pro[l]==ntermnl[i]) //finding the nonterminal whose follow set is to be found
+{
+if(l==pro.length-1) //if it is the last terminal/non-terminal then follow of current non-terminal
+{
+if(j<i)
+temp=temp+flw[j];
+}
+else
+{
+for(m=0;m<ntlen;m++)
+{
+if(pro[l+1]==ntermnl[m]) //first of next non-terminal otherwise (else later…)
+{
+chr=new char[fst[m].length()];
+chr=fst[m].toCharArray();
+for(n=0;n<chr.length;n++)
+{
+if(chr[n]=='9') //if first includes epsilon
+{
+if(l+1==pro.length-1)
+temp=temp+follow(j); //when non-terminal is second last
+else
+temp=temp+follow(m);
+}
+else
+temp=temp+chr[n]; //include whole first set except epsilon
+}
+found=1;
+}
+}
+if(found!=1)
+temp=temp+pro[l+1]; //follow set will include terminal(else is here)
+}
+}
+}
+}
+}
+return temp;
+}
+static String removeDuplicates(String str)
+{
+int i;
+char ch;
+boolean seen[] = new boolean[256];
+StringBuilder sb = new StringBuilder(seen.length);
+for(i=0;i<str.length();i++)
+{
+ch=str.charAt(i);
+if (!seen[ch])
+{
+seen[ch] = true;
+sb.append(","+ch);
+}
+}
+return sb.toString();
+}
+}
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+6.Predictive Parser
+
+import java.util.*;
+public class PredictiveParser {
+static String first[],follow[],grammar[][];
+   static List<String> nonTerminals=new ArrayList<>();
+   static Map<String,Map<Character,String>> table=new HashMap<>();
+   public static void main(String[] args) {
+       Scanner sc=new Scanner(System.in);
+       System.out.println("Enter the no of productions");
+       int n=sc.nextInt();
+       grammar=new String[n][2];
+       System.out.println("Enter the productions that are free from Left Recursion(Use '@' Symbol for Epsilon)");
+       sc.nextLine();
+       for(int i=0;i<n;i++)
+       {
+           String s=sc.nextLine();
+           String p[]=s.split("->");
+           nonTerminals.add(p[0].trim());
+           grammar[i][0]=p[0].trim();
+           grammar[i][1]=p[1];
+       }
+       for(String s:nonTerminals)
+        table.put(s, new HashMap<>());
+       first=new String[n];follow=new String[n];
+       for(int i=0;i<n;i++)
+           first[i]=calculateFirst(i);
+       for(int i=0;i<n;i++)
+           follow[i]=calculateFollow(i);
+       for(int i=0;i<n;i++)
+        if(first[i].contains("@"))
+        for(char c:follow[i].toCharArray())
+        table.get(grammar[i][0]).put(c,"@");
+       System.out.println("Enter the String to Check whether it is accepted or not");
+       String s=sc.nextLine();
+       if(check(s+"$"))
+        System.out.println("String is accepted");
+       else
+        System.out.println("String is rejected");
+   }
+   static String calculateFirst(int i)
+   {
+       String s[]=grammar[i][1].split("\\|"),temp="";
+       for(String p:s)
+       {
+           if(!nonTerminals.contains(p.charAt(0)+""))
+               temp+=p.charAt(0);
+           else
+           {
+               String t=calculateFirst(nonTerminals.indexOf(p.charAt(0)+""));
+               if(t.contains("@"))
+               {
+                if(!nonTerminals.contains(p.charAt(1)+""))
+                temp+=p.charAt(1);
+                else
+                temp+=calculateFirst(nonTerminals.indexOf(p.charAt(1)+""));
+               }
+               temp+=t;
+           }
+           table.get(grammar[i][0]).put(temp.charAt(temp.length()-1),p);
+       }
+       return temp;
+   }
+   static String calculateFollow(int i)
+   {
+       Set<Character> temp=new HashSet<>();
+       if(i==0)
+           temp.add('$');
+       for(int idx=0;idx<grammar.length;idx++)
+       {
+           if(grammar[idx][0]==nonTerminals.get(i))
+               continue;
+           String s[]=grammar[idx][1].split("\\|");
+           for(String p:s)
+           {
+               String nt=nonTerminals.get(i);
+               if(p.contains(nt))
+               {    
+                   if(p.indexOf(nt)==p.length()-1)
+                   {
+                    String t=follow[nonTerminals.indexOf(grammar[idx][0])];
+                    if(t==null)
+                    t=calculateFollow(nonTerminals.indexOf(grammar[idx][0]));
+                    for(char c:t.toCharArray())
+                        temp.add(c);
+                   }
+                   else
+                   {
+                       int x=p.indexOf(nt);
+                       if(!nonTerminals.contains(p.charAt(x+1)+""))
+                           temp.add(p.charAt(x+1));
+                       else
+                       {
+                           if(first[nonTerminals.indexOf(p.charAt(x+1)+"")].contains("@"))
+                           {
+                            String t=first[nonTerminals.indexOf(p.charAt(x+1)+"")];
+                            for(char c:t.toCharArray())
+                        temp.add(c);
+                              temp.remove('@');
+                              t=follow[nonTerminals.indexOf(grammar[idx][0])];
+                    if(t==null)
+                    t=calculateFollow(nonTerminals.indexOf(grammar[idx][0]));
+                    for(char c:t.toCharArray())
+                        temp.add(c);
+                           }
+                           else
+                           {
+                            String t=first[nonTerminals.indexOf(p.charAt(x+1)+"")];
+                            for(char c:t.toCharArray())
+                                temp.add(c);
+                           }
+                       }
+                   }
+               }
+           }
+       }
+       String ans="";
+       for(char x:temp)
+           ans+=x;
+       return ans;
+   }
+   static boolean check(String s)
+   {
+    try{
+    Stack<Character> stk=new Stack<>();
+    stk.add('$');
+    stk.add(nonTerminals.get(0).charAt(0));
+    int i=0;
+    while(i<s.length())
+    {
+    if(stk.isEmpty())
+    return false;
+    if(stk.peek()==s.charAt(i))
+    {
+    stk.pop();
+    i++;
+    continue;
+    }
+    char c=stk.pop();
+    String t=table.get(c+"").get(s.charAt(i));
+    if(t=="@")
+    continue;            
+    for(int idx=t.length()-1;idx>=0;idx--)
+    stk.push(t.charAt(idx));
+    }
+    if(stk.isEmpty())
+    return true;
+    return false;
+    }
+    catch(NullPointerException e){
+return false;
+}
+   }
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+7.Shift Reduce parser
+
+import java.util.Scanner;
+class ProductionRule {
+    String left;
+    String right;
+    ProductionRule(String left, String right) {
+        this.left = left;
+        this.right = right;
+    }
+}
+public class ShiftReduceParser {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String input, stack = "";
+        int ruleCount;
+        System.out.println("Enter the number of production rules: ");
+        ruleCount = scanner.nextInt();
+        scanner.nextLine();
+        ProductionRule[] rules = new ProductionRule[ruleCount];
+        System.out.println("Enter the production rules (in the form 'left->right'): ");
+        for (int i = 0; i < ruleCount; i++) {
+            String[] temp = scanner.nextLine().split("->");
+            rules[i] = new ProductionRule(temp[0], temp[1]);
+        }
+        System.out.println("Enter the input string: ");
+        input = scanner.nextLine();
+        int i = 0;
+        while (true) {
+            if (i < input.length()) {
+                char ch = input.charAt(i);
+                i++;
+                stack += ch;
+                System.out.print(stack + "\t");
+                System.out.print(input.substring(i) + "\tShift " + ch + "\n");
+            }
+            for (int j = 0; j < ruleCount; j++) {
+                int substringIndex = stack.indexOf(rules[j].right);
+                if (substringIndex != -1) {
+                    stack = stack.substring(0, substringIndex) + rules[j].left;
+                    System.out.print(stack + "\t");
+                    System.out.print(input.substring(i) + "\tReduce " + rules[j].left + "->" + rules[j].right + "\n");
+                    j = -1;
+                }
+            }
+            if (stack.equals(rules[0].left) && i == input.length()) {
+                System.out.println("\nAccepted");
+                break;
+            }
+            if (i == input.length()) {
+                System.out.println("\nNot Accepted");
+                break;
+            }
+        }
+        scanner.close();
+    }
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+8.Operator Precedence Parser
+
+import  java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        char[] stack = new char[20];
+        char[] ip = new char[20];
+        char[][][] opt = new char[10][10][1];
+        char[] ter = new char[10];
+        int i, j, k, n, top = 0, col = 0, row = 0;
+       
+        for (i = 0; i < 10; i++) {
+            stack[i] = '\0';
+            ip[i] = '\0';
+            for (j = 0; j < 10; j++) {
+                opt[i][j][0] = '\0';
+            }
+        }
+       
+        System.out.println("Enter the no.of terminals :");
+        n = scanner.nextInt();
+        System.out.println("\nEnter the terminals :");
+        String terminals = scanner.next();
+        ter = terminals.toCharArray();
+       
+        System.out.println("\nEnter the table values :");
+        for (i = 0; i < n; i++) {
+            for (j = 0; j < n; j++) {
+                System.out.printf("Enter the value for %c %c:", ter[i], ter[j]);
+                opt[i][j] = scanner.next().toCharArray();
+            }
+        }
+       
+        System.out.println("\n**** OPERATOR PRECEDENCE TABLE ****");
+        for (i = 0; i < n; i++) {
+            System.out.print("\t" + ter[i]);
+        }
+        System.out.println();
+        for (i = 0; i < n; i++) {
+            System.out.print(ter[i]);
+            for (j = 0; j < n; j++) {
+                System.out.print("\t" + opt[i][j][0]);
+            }
+            System.out.println();
+        }
+       
+        stack[top] = '$';
+        System.out.println("\nEnter the input string:");
+        String input = scanner.next();
+        ip = input.toCharArray();
+       
+        i = 0;
+        System.out.println("\nSTACK\t\t\tINPUT STRING\t\t\tACTION\n");
+        System.out.print(stack + "\t\t\t" + input + "\t\t\t");
+       
+        while (i <= input.length()) {
+            for (k = 0; k < n; k++) {
+                if (stack[top] == ter[k])
+                    col = k;
+                if (ip[i] == ter[k])
+                    row = k;
+            }
+           
+            if ((stack[top] == '$') && (ip[i] == '$')) {
+                System.out.println("String is accepted\n");
+                break;
+            } else if ((opt[col][row][0] == '<') || (opt[col][row][0] == '=')) {
+                stack[++top] = opt[col][row][0];
+                stack[++top] = ip[i];
+                System.out.println("Shift " + ip[i]);
+                i++;
+            } else {
+                if (opt[col][row][0] == '>') {
+                    while (stack[top] != '<') {
+                        --top;
+                    }
+                    top = top - 1;
+                    System.out.println("Reduce");
+                } else {
+                    System.out.println("\nString is not accepted");
+                    break;
+                }
+            }
+            System.out.println();
+            for (k = 0; k <= top; k++) {
+                System.out.print(stack[k]);
+            }
+            System.out.print("\t\t\t");
+            for (k = i; k < input.length(); k++) {
+                System.out.print(ip[k]);
+            }
+            System.out.print("\t\t\t");
+        }
+        scanner.close();
+    }
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+9.Stack Operations
+
+import java.util.Scanner;
+
+public class Main1 {
+    private int[] stack;
+    private int top;
+    private int capacity;
+
+    public Main1(int size) {
+        capacity = size;
+        stack = new int[capacity];
+        top = -1;
+    }
+
+    private void push(int item) {
+        if (top == capacity - 1) {
+            System.out.println("Stack Overflow! Cannot push " + item);
+            return;
+        }
+        stack[++top] = item;
+        System.out.println("Pushed " + item + " into the stack");
+    }
+
+    private int pop() {
+        if (top == -1) {
+            System.out.println("Stack Underflow! Cannot pop");
+            return -1;
+        }
+        return stack[top--];
+    }
+
+    private void displayStack() {
+        if (top == -1) {
+            System.out.println("Stack is empty");
+            return;
+        }
+        System.out.println("Elements in the stack:");
+        for (int i = top; i >= 0; i--) {
+            System.out.println(stack[i]);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the size of the stack:");
+        Main1 stack = new Main1(scanner.nextInt());
+
+        int choice;
+        do {
+            System.out.println("\nStack Operations:\n1. Push\n2. Pop\n3. Display Stack\n4. Exit\nEnter your choice:");
+            choice = scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    System.out.println("Enter the element to push:");
+                    stack.push(scanner.nextInt());
+                    break;
+                case 2:
+                    int poppedElement = stack.pop();
+                    if (poppedElement != -1) {
+                        System.out.println("Popped Element: " + poppedElement);
+                    }
+                    break;
+                case 3:
+                    stack.displayStack();
+                    break;
+                case 4:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please enter a valid option.");
+            }
+        } while (choice != 4);
+
+        scanner.close();
+    }
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+10.ThreeAddressCode
+
+import java.util.*;
+
+public class Main2 {
+    
+    private static int tempCount = 0;
+
+    public static List<String> generateThreeAddressCode(String expression) {
+        List<String> code = new ArrayList<>();
+        Stack<String> stack = new Stack<>();
+        parseExpression(expression, stack, code);
+        return code;
+    }
+    
+    private static void parseExpression(String expression, Stack<String> stack, List<String> code) {
+        if (expression.isEmpty()) return;
+        
+        int index = findLowestPrecedenceOperator(expression);
+        if (index == -1) {
+            stack.push(expression);
+            return;
+        }
+        
+        String leftOperand = expression.substring(0, index);
+        String rightOperand = expression.substring(index + 1);
+        parseExpression(leftOperand, stack, code);
+        parseExpression(rightOperand, stack, code);
+        
+        String operator = Character.toString(expression.charAt(index));
+        String operand2 = stack.pop();
+        String operand1 = stack.pop();
+        String temp = "t" + tempCount++;
+        code.add(temp + " = " + operand1 + " " + operator + " " + operand2);
+        stack.push(temp);
+    }
+    
+    private static int findLowestPrecedenceOperator(String expression) {
+        int lowestPrecedence = Integer.MAX_VALUE;
+        int index = -1;
+        int parenCount = 0;
+        
+        for (int i = 0; i < expression.length(); i++) {
+            char c = expression.charAt(i);
+            if (c == '(') {
+                parenCount++;
+            } else if (c == ')') {
+                parenCount--;
+            } else if (parenCount == 0 && precedence(c) < lowestPrecedence) {
+                lowestPrecedence = precedence(c);
+                index = i;
+            }
+        }
+        
+        return index;
+    }
+    
+    private static int precedence(char operator) {
+        if (operator == '+' || operator == '-') return 1;
+        if (operator == '*' || operator == '/') return 2;
+        return Integer.MAX_VALUE;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter an arithmetic expression:");
+        String expression = scanner.nextLine();
+        
+        List<String> code = generateThreeAddressCode(expression);
+        
+        System.out.println("\nGenerated Three Address Code:");
+        code.forEach(System.out::println);
+        
+        scanner.close();
+    }
+}
